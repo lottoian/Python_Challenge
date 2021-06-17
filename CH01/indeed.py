@@ -2,33 +2,45 @@ import requests
 from bs4 import BeautifulSoup
 
 limit = 50
-url = f"https://www.indeed.com/jobs?q=python&limit={limit}"
+URL = f"https://kr.indeed.com/%EC%B7%A8%EC%97%85?q=python&limit={limit}"
 
 def extract_indeed_pages():
-    result = requests.get(url)
+    
+    result = requests.get(URL)
+
     soup = BeautifulSoup(result.text,"html.parser")
 
     pagination = soup.find("div",{"class":"pagination"})
 
-    links = pagination.find_all('a')
-    spans = []
-    for link in links[:-1]:
-        spans.append(link.find("span").string)
+    links = pagination.find_all("a")
+    pages =[]
 
-    max_page = max(spans)
+    for link in links[:-1]:
+        pages.append(int(link.find("span").string))
+
+    max_page = max(pages)
     return max_page
 
 def extract_indeed_jobs(last_page):
-    #for page in range(last_page):
-    result = requests.get(f"{url}&start={0*limit}")
-    soup = BeautifulSoup(result.text,"html.parser")
-    results = soup.find_all("div",{"class":"job_seen_beacon"})
-      
-    for text in results:
-        title = text.find("h2",{"class":"jobTitle jobTitle-color-purple"}).find("span")["title"]
-        if title is not None:
-            print(title)
+    jobs = []
+    for x in range(last_page):
+        result = requests.get(f"{URL}&start={0*limit}")
+        soup = BeautifulSoup(result.text,"html.parser")
+        results = soup.find_all("div",{"class":"jobsearch-SerpJobCard"})
+        for result in results:
+            title = result.find("h2",{"class":"title"}).find('a')["title"]
+            company = result.find("span",{"class":"company"})
+
+            if company is None:
+                continue
+            company_anchor = company.find("a")
+
+            if company_anchor is not None:
+                company = str(company_anchor.string)
+            else:
+                company = str(company.string)
+            company = company.strip()
+            print(company)
+
+            
         
-max_indeed_pages = extract_indeed_pages()
-print(max_indeed_pages)
-extract_indeed_jobs(int(max_indeed_pages))
