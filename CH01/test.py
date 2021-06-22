@@ -47,7 +47,6 @@ while scan != 'n':
       scan = input()
       determine(scan)
       
-
     elif "http://" not in user[x]:
       user[x] = "http://" + user[x]
       user[x] = user[x].lower()
