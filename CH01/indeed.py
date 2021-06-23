@@ -13,7 +13,6 @@ def get_last_page():
     pagination = soup.find("div",{"class":"pagination"})
 
     links = pagination.find_all("a")
-    print(len(links))
     pages =[]
 
     for link in links[:-1]:
@@ -54,15 +53,17 @@ def extract_job(html):
 def extract_jobs(last_page):
     jobs = []
     for x in range(last_page):
-        print(f"Export Page {x}")
+        print(f"Export Page Indeed {x}")
         result = requests.get(f"{URL}&start={0*limit}")
         print(f"Status {result.status_code}")
         soup = BeautifulSoup(result.text,"html.parser")
         results = soup.find_all("div",{"class":"jobsearch-SerpJobCard"})
         for result in results:
             job = extract_job(result)
-            print(job)
+            jobs.append(job)
     print("---------------------------------")
+
+    return jobs
             
 def get_jobs():
 
